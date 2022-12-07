@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:chat_app/helpers/mostrar_alerta.dart';
 import 'package:chat_app/services/services.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,7 @@ class __FormState extends State<_Form> {
   final passCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -71,13 +73,24 @@ class __FormState extends State<_Form> {
           ),
           BottonAzul(
             text: 'Ingresar',
-            onPressed: () {
-              print(emailCtrl.text);
-              print(passCtrl.text);
-              final authService =
-                  Provider.of<AuthService>(context, listen: false);
-              authService.login(emailCtrl.text, passCtrl.text);
-            },
+            onPressed: authService.autenticando
+                ? () => {}
+                : () async {
+                    FocusScope.of(context).unfocus();
+
+                    final loginOk = await authService.login(
+                        emailCtrl.text.trim(), passCtrl.text.trim());
+                    if (loginOk) {
+                      //navegar a otra pantalla
+                      // ignore: use_build_context_synchronously
+                      Navigator.pushReplacementNamed(context, 'usuarios');
+                    } else {
+                      //mostrar alerta
+                      // ignore: use_build_context_synchronously
+                      mostrarAlerta(context, 'Login Incorecto',
+                          'Verifique el correo o la contraseña');
+                    }
+                  },
           )
         ],
       ),
