@@ -1,7 +1,9 @@
 // ignore_for_file: avoid_print
 
+import 'package:chat_app/services/services.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,9 +20,15 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Logo(titulo: 'Messenger',),
+                const Logo(
+                  titulo: 'Messenger',
+                ),
                 _Form(),
-                const labels(ruta: 'register', ncuenta: '¿No Tienes Cuenta?', tcuenta: 'Crea una Cuenta',),
+                const labels(
+                  ruta: 'register',
+                  ncuenta: '¿No Tienes Cuenta?',
+                  tcuenta: 'Crea una Cuenta',
+                ),
                 const Text(
                   'Terminos Y Condiciones',
                   style: TextStyle(fontWeight: FontWeight.w200),
@@ -64,9 +72,11 @@ class __FormState extends State<_Form> {
           BottonAzul(
             text: 'Ingresar',
             onPressed: () {
-              
               print(emailCtrl.text);
               print(passCtrl.text);
+              final authService =
+                  Provider.of<AuthService>(context, listen: false);
+              authService.login(emailCtrl.text, passCtrl.text);
             },
           )
         ],
