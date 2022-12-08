@@ -1,7 +1,10 @@
 // ignore_for_file: avoid_print
 
+import 'package:chat_app/helpers/mostrar_alerta.dart';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -23,7 +26,9 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 _Form(),
                 const labels(
-                  ruta: 'login', ncuenta: '¿Tienes Cuenta?', tcuenta: 'Ingresa Ahora!',
+                  ruta: 'login',
+                  ncuenta: '¿Tienes Cuenta?',
+                  tcuenta: 'Ingresa Ahora!',
                 ),
                 const Text(
                   'Terminos Y Condiciones',
@@ -49,6 +54,7 @@ class __FormState extends State<_Form> {
   final passCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -73,12 +79,25 @@ class __FormState extends State<_Form> {
             isPassword: true,
           ),
           BottonAzul(
-            text: 'Ingresar',
-            onPressed: () {
-              print(nameCtrl);
-              print(emailCtrl.text);
-              print(passCtrl.text);
-            },
+            text: 'Crear Cuenta',
+            onPressed: authService.autenticando
+                ? () => {}
+                : () async {
+                    print(nameCtrl);
+                    print(emailCtrl.text);
+                    print(passCtrl.text);
+                    final registerOk = await authService.register(
+                        nameCtrl.text.trim(),
+                        emailCtrl.text.trim(),
+                        passCtrl.text.trim());
+                    if (registerOk == true) {
+                      // ignore: use_build_context_synchronously
+                      Navigator.pushReplacementNamed(context, 'usuarios');
+                    } else {
+                      // ignore: use_build_context_synchronously
+                      mostrarAlerta(context, 'Registro incorrecto', registerOk);
+                    }
+                  },
           )
         ],
       ),
