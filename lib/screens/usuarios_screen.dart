@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../services/services.dart';
+
 class UsuariosScreen extends StatefulWidget {
   const UsuariosScreen({Key? key}) : super(key: key);
 
@@ -22,11 +24,12 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     final usuario = authService.usuario;
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title:  Text(
+          title: Text(
             usuario?.nombre ?? 'Sin Nombre',
             style: const TextStyle(color: Colors.black87),
           ),
@@ -34,6 +37,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
           backgroundColor: Colors.white,
           leading: IconButton(
               onPressed: () {
+                socketService.disconnect();
                 Navigator.pushReplacementNamed(context, 'login');
                 AuthService.deleteToken();
               },
@@ -44,11 +48,14 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
           actions: [
             Container(
               margin: const EdgeInsets.only(right: 10),
-              child: Icon(
+              child:(socketService.serverStatus == ServiceStatus.Online)
+               ?
+               Icon(
                 Icons.check_circle,
                 color: Colors.blue[400],
-              ),
-              //child: const Icon(Icons.offline_bolt, color: Colors.red,),
+              )
+              :
+               const Icon(Icons.offline_bolt, color: Colors.red,),
             )
           ],
         ),

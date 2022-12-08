@@ -1,10 +1,11 @@
 // ignore_for_file: avoid_print
 
 import 'package:chat_app/helpers/mostrar_alerta.dart';
-import 'package:chat_app/services/auth_service.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../services/services.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -55,6 +56,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -91,6 +93,7 @@ class __FormState extends State<_Form> {
                         emailCtrl.text.trim(),
                         passCtrl.text.trim());
                     if (registerOk == true) {
+                      socketService.connect();
                       // ignore: use_build_context_synchronously
                       Navigator.pushReplacementNamed(context, 'usuarios');
                     } else {
