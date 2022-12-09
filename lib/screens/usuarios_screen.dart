@@ -14,13 +14,19 @@ class UsuariosScreen extends StatefulWidget {
 }
 
 class _UsuariosScreenState extends State<UsuariosScreen> {
+  final usuariosService = UsuariosService();
+
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
-  final usuarios = [
-    Usuario(online: true, email: 'Test1@test.com', nombre: 'Ronny', uid: '1'),
-    Usuario(online: true, email: 'Test2@test.com', nombre: 'jose', uid: '2'),
-    Usuario(online: false, email: 'Test3@test.com', nombre: 'juana', uid: '3'),
-  ];
+  List<Usuario> usarios = [];
+
+  @override
+  void initState() {
+    _cargarUsuarios();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -48,14 +54,15 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
           actions: [
             Container(
               margin: const EdgeInsets.only(right: 10),
-              child:(socketService.serverStatus == ServiceStatus.Online)
-               ?
-               Icon(
-                Icons.check_circle,
-                color: Colors.blue[400],
-              )
-              :
-               const Icon(Icons.offline_bolt, color: Colors.red,),
+              child: (socketService.serverStatus == ServiceStatus.Online)
+                  ? Icon(
+                      Icons.check_circle,
+                      color: Colors.blue[400],
+                    )
+                  : const Icon(
+                      Icons.offline_bolt,
+                      color: Colors.red,
+                    ),
             )
           ],
         ),
@@ -77,9 +84,9 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
   ListView _listViewUsuarios() {
     return ListView.separated(
         physics: const BouncingScrollPhysics(),
-        itemBuilder: (_, i) => _usuarioListTile(usuarios[i]),
+        itemBuilder: (_, i) => _usuarioListTile(usarios[i]),
         separatorBuilder: (_, i) => const Divider(),
-        itemCount: usuarios.length);
+        itemCount: usarios.length);
   }
 
   ListTile _usuarioListTile(Usuario usuario) {
@@ -97,11 +104,19 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
             color: usuario.online ? Colors.green[300] : Colors.red,
             borderRadius: BorderRadius.circular(100)),
       ),
+      onTap: () {
+        final chatService = Provider.of<ChatService>(context,listen: false);
+        chatService.usarioPara = usuario;
+        Navigator.pushNamed(context, 'chat');
+      },
     );
   }
 
   _cargarUsuarios() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+    usuariosService.getUsuarios();
+    usarios = await usuariosService.getUsuarios();
+    setState(() {});
+    //await Future.delayed(const Duration(milliseconds: 1000));
 
     _refreshController.refreshCompleted();
   }
