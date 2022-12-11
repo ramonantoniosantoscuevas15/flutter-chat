@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_app/models/mensajes_response.dart';
 import 'package:chat_app/services/services.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +30,20 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     socketService = Provider.of<SocketService>(context, listen: false);
     authService = Provider.of<AuthService>(context, listen: false);
     socketService!.socket.on('mensaje-personal', _escucharmensaje);
+    _cargarHistorial(chatService!.usarioPara!.uid);
+  }
+
+  void _cargarHistorial(String usuarioID) async {
+    List<Mensaje> chat = await chatService!.getChat(usuarioID);
+    final history = chat.map((m) => ChatMessage(
+        texto: m.mensaje,
+        uid: m.de,
+        animetionController: AnimationController(
+            vsync: this, duration: const Duration(milliseconds: 0))
+          ..forward()));
+    setState(() {
+      _messages.insertAll(0, history);
+    });
   }
 
   void _escucharmensaje(dynamic payload) {
@@ -155,7 +170,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     _textController.clear();
     _focusNode.requestFocus();
     final newMessage = ChatMessage(
-      uid: '123',
+      uid: authService!.usuario!.uid,
       texto: texto,
       animetionController: AnimationController(
           vsync: this, duration: const Duration(milliseconds: 400)),
